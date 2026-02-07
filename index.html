@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Индекс НЛС: Нужно Ли Спасать?</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- KaTeX для рендеринга формул -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <style>
@@ -670,21 +670,6 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             border: 1px solid rgba(72, 219, 251, 0.5);
-        }
-        
-        .share-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
-            padding: 12px 25px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(46, 204, 113, 0.5);
-            cursor: pointer;
         }
         
         .download-btn:hover {
@@ -1573,13 +1558,11 @@
             shareButton.addEventListener('click', async function() {
                 const nls = Math.round(currentNLS);
                 const rescueStatus = shouldRescue(nls);
-                
                 const encodedString = encodeParameters();
                 
-                const baseUrl = window.location.origin + window.location.pathname;
-                const shareUrl = `${baseUrl}#s=${encodedString}`;
+                const shareUrl = window.location.href.split('#')[0] + `#s=${encodedString}`;
                 
-                const shareText = `Индекс НЛС: ${nls}! Ваш народ ${rescueStatus} спасать. Похоже на правду? ${shareUrl}`;
+                const shareText = `Индекс НЛС: ${nls}! Ваш народ ${rescueStatus} спасать. ${shareUrl}`;
                 
                 await copyToClipboard(shareText);
             });
