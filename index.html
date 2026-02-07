@@ -946,7 +946,7 @@
                 <i class="fas fa-download"></i> Скачать оригинальную работу (PDF)
             </a>
             <button class="share-btn" id="share-results">
-                <i class="fas fa-share-alt"></i> Поделиться результатом
+                <i class="fas fa-share"></i> Поделиться результатом
             </button>
         </div>
     </div>
@@ -954,6 +954,10 @@
     <!-- KaTeX для рендеринга формул -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script>
+        window.onerror = function(msg, url, line) {
+            alert("Error: " + msg + "\nURL: " + url + "\nLine: " + line);
+            return false;
+        };
         // Алфавит для base62 кодирования (a-zA-Z0-9)
         const BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         
