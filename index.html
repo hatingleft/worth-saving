@@ -897,7 +897,7 @@
                 font-size: 1.2rem;
             }
         }
-
+        
         .animated-title-container {
             width: 100%;
             max-width: 900px;
@@ -953,28 +953,24 @@
             text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             letter-spacing: 1px;
             flex-shrink: 0;
-            opacity: 1;
+            opacity: 0.3; /* Слова по умолчанию блеклые */
             transition: all 0.8s ease;
             min-width: 200px;
             text-align: center;
             position: relative;
+            filter: blur(1px);
+            transform: scale(0.9);
         }
         
-        /* Центральное слово всегда ярче и крупнее */
-        .title-word.center {
+        /* Подсвеченные слова - текущая пара */
+        .title-word.highlighted {
             opacity: 1 !important;
             transform: scale(1.1) !important;
             filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4)) !important;
             z-index: 2;
         }
         
-        /* Слова по краям плавно исчезают */
-        .title-word.edge {
-            opacity: 0.3;
-            transform: scale(0.9);
-            filter: blur(1px);
-        }
-        
+        /* Уменьшаем смещение вполовину */
         @keyframes titleShift {
             0% {
                 transform: translateX(0);
@@ -983,29 +979,17 @@
                 transform: translateX(0);
             }
             40% {
-                transform: translateX(calc(-50%)); /* Сдвигаем так, чтобы "нельзя бросить" было по центру */
+                /* Вместо -100% + 200px используем половину */
+                transform: translateX(calc(-50% + 100px)); 
             }
             60% {
-                transform: translateX(calc(-50%));
+                transform: translateX(calc(-50% + 100px));
             }
             90% {
                 transform: translateX(0);
             }
             100% {
                 transform: translateX(0);
-            }
-        }
-        
-        /* Паузы между анимациями */
-        @keyframes titlePause {
-            0%, 25% {
-                animation-timing-function: ease-out;
-            }
-            25%, 75% {
-                animation-timing-function: ease-in;
-            }
-            75%, 100% {
-                animation-timing-function: ease-out;
             }
         }
         
@@ -1028,6 +1012,27 @@
             .animated-title-track {
                 gap: 30px;
                 padding: 0 80px;
+            }
+            
+            @keyframes titleShift {
+                0% {
+                    transform: translateX(0);
+                }
+                10% {
+                    transform: translateX(0);
+                }
+                40% {
+                    transform: translateX(calc(-50% + 80px));
+                }
+                60% {
+                    transform: translateX(calc(-50% + 80px));
+                }
+                90% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(0);
+                }
             }
         }
         
@@ -1055,10 +1060,10 @@
                     transform: translateX(0);
                 }
                 40% {
-                    transform: translateX(calc(-100% + 120px));
+                    transform: translateX(calc(-50% + 60px));
                 }
                 60% {
-                    transform: translateX(calc(-100% + 120px));
+                    transform: translateX(calc(-50% + 60px));
                 }
                 90% {
                     transform: translateX(0);
@@ -1082,6 +1087,27 @@
             .animated-title-track {
                 gap: 15px;
                 padding: 0 40px;
+            }
+            
+            @keyframes titleShift {
+                0% {
+                    transform: translateX(0);
+                }
+                10% {
+                    transform: translateX(0);
+                }
+                40% {
+                    transform: translateX(calc(-50% + 40px));
+                }
+                60% {
+                    transform: translateX(calc(-50% + 40px));
+                }
+                90% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(0);
+                }
             }
         }
     </style>
@@ -1809,32 +1835,48 @@
             
             if (!track) return;
             
+            // Функция для определения, какие слова сейчас видимы (в паре)
             function updateWordStates() {
                 const containerRect = track.parentElement.getBoundingClientRect();
                 const center = containerRect.left + containerRect.width / 2;
                 
+                // Сначала снимаем подсветку со всех слов
                 words.forEach(word => {
+                    word.classList.remove('highlighted');
+                    word.style.opacity = 0.3;
+                    word.style.transform = 'scale(0.9)';
+                    word.style.filter = 'blur(1px)';
+                });
+                
+                // Находим два слова, которые ближе всего к центру
+                const sortedWords = Array.from(words).map(word => {
                     const wordRect = word.getBoundingClientRect();
                     const wordCenter = wordRect.left + wordRect.width / 2;
-                    const distance = Math.abs(wordCenter - center);
-                    
-                    if (distance < 50) {
-                        word.classList.add('center');
-                        word.classList.remove('edge');
-                    } else {
-                        word.classList.remove('center');
-                        word.classList.add('edge');
-                    }
+                    return {
+                        element: word,
+                        distance: Math.abs(wordCenter - center)
+                    };
+                }).sort((a, b) => a.distance - b.distance);
+                
+                // Подсвечиваем два ближайших слова (текущую пару)
+                sortedWords.slice(0, 2).forEach(item => {
+                    item.element.classList.add('highlighted');
+                    item.element.style.opacity = 1;
+                    item.element.style.transform = 'scale(1.1)';
+                    item.element.style.filter = 'drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4))';
                 });
             }
             
+            // Обновляем состояния при каждом кадре анимации
             function onAnimationFrame() {
                 updateWordStates();
                 requestAnimationFrame(onAnimationFrame);
             }
             
+            // Запускаем обновление
             requestAnimationFrame(onAnimationFrame);
             
+            // Останавливаем/возобновляем анимацию при наведении
             const container = document.querySelector('.animated-title-container');
             if (container) {
                 container.addEventListener('mouseenter', () => {
@@ -1846,6 +1888,7 @@
                 });
             }
             
+            // Инициализация начального состояния
             setTimeout(() => {
                 updateWordStates();
             }, 100);
