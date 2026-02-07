@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Стоит ли спасать этот народ?</title>
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- KaTeX для рендеринга формул -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <style>
@@ -1572,18 +1572,36 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            renderFormula();
+            console.log("Initializing Index WS...");
             
-            createScale();
-            initParameters();
-            
-            const hasUrlParams = checkUrlForParameters();
-            
-            if (!hasUrlParams) {
-                initRandomValues();
+            try {
+                setupShareButton();
+                console.log("Share button active.");
+            } catch (e) {
+                console.error("Critical: Could not attach button logic", e);
             }
             
-            setupShareButton();
+            try {
+                createScale();
+                initParameters();
+            } catch (e) {
+                console.error("UI Init Error:", e);
+            }
+            
+            if (typeof katex !== 'undefined') {
+                try {
+                    renderFormula();
+                } catch (e) {
+                    console.error("KaTeX Render Error:", e);
+                }
+            } else {
+                console.warn("KaTeX not loaded. Formula will be hidden.");
+                document.getElementById('formula').innerHTML = "<em>Error loading formula</em>";
+            }
+            
+            if (!checkUrlForParameters()) {
+                initRandomValues();
+            }
         });
     </script>
 
